@@ -1,17 +1,16 @@
 #/bin/bash
 
-export tmpdir_name="./diwork-main"
 
-mkdir $tmpdir_name
+cp -r ../diwork_ways .
+cp -r ../diwork_mains .
+cp ../diwork.py ./diwork
 
 chmod ug+x diwork
 
-cp -r ../diwork_mains $tmpdir_name
-cp -r ../diwork_ways $tmpdir_name
-cp ../diwork.py $tmpdir_name
+find . -name "__pycache__" -type d -exec rm -rf {} \;
 
-find . -name "__pycache__" -exec rm -rf {} \;
+tar -cvaf diwork.tar.gz diwork ./diwork_ways ./diwork_mains
 
-tar -cvaf diwork.tar.gz diwork ./diwork-main
-
-rm -rf $tmpdir_name
+rm -f ./diwork
+rm -rf ./diwork_ways
+rm -rf ./diwork_mains

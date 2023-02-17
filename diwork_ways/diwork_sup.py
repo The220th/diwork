@@ -6,8 +6,9 @@ import subprocess
 import hashlib
 
 class Global():
+    version = None
     outfile = None
-    hash_mode = 0 # 0 is sha256sum, 1 is hashlib.sha256, 2 is sha512sum
+    hash_mode = 1 # 0 is sha256sum, 1 is hashlib.sha256, 2 is sha512sum
     
 
 
@@ -28,6 +29,15 @@ def is_file(file_path: str) -> bool:
 # return False, if file_path not exists
 def is_exists(file_path: str) -> bool:
     return os.path.exists(file_path)
+
+def check_files_exists_or_exit(files: list) -> None:
+    F = False
+    for file_i in files:
+        if(is_exists(file_i) == False):
+            pout(f"File \"{file_i}\" does not exists. ")
+            F = True
+    if(F == True):
+        exit()
 
 def is_folder_empty(folder_path: str) -> bool:
     if(len(os.listdir(folder_path)) == 0):
@@ -54,7 +64,7 @@ def pout(msg : str, endl = True):
         pout_low(msg + "\n")
 
 def pout_low(msg: str):
-    print(msg)
+    print(msg, end="")
     if(Global.outfile != None):
         with open(Global.outfile, "a", encoding="utf-8") as fd:
             fd.write(msg)
@@ -74,6 +84,7 @@ def get_hash_file(file_path: str) -> str:
             while len(file_buffer) > 0:
                 sha.update(file_buffer)
                 file_buffer = temp.read(buff_BLOCKSIZE)
+        return sha.hexdigest()
     else:
         if(Global.hash_mode == 0):
             shaxxxsum = "sha256sum"
@@ -91,13 +102,37 @@ def get_hash_str(s: str):
     if(Global.hash_mode == 1):
         return hashlib.sha256( s.encode("utf-8") ).hexdigest()
     else:
-        exe_res = exe(f"sha512sum", stdin_msg=s)
+        if(Global.hash_mode == 0):
+            shaxxxsum = "sha256sum"
+        elif(Global.hash_mode == 2):
+            shaxxxsum = "sha512sum"
+        exe_res = exe(f"{shaxxxsum}", stdin_msg=s)
         if(exe_res[1] != ""):
-            pout(f"Error with sha512sum: ")
+            pout(f"Error with {shaxxxsum}: ")
             pout(f"\"{exe_res[1]}\"")
             exit()
         res = exe_res[0]
         return res[:res.find(" ")]
+
+def exclude_files(src_files: list, exclude_files: list) -> list:
+    """
+    Убрать из src те файлы, которые есть в exclude_files
+    exclude_files - это список файлов или директорий
+    Пути к файлам либо все абсолютные, либо все относительные
+    """
+    if(exclude_files == None):
+        return src_files
+    res = []
+
+    for file_i in src_files:
+        if file_i not in exclude_files:
+            F = True
+            for ex_file_i in exclude_files:
+                if ex_file_i in file_i:
+                    F = False
+            if(F == True):
+                res.append(file_i) 
+    return res
 
 def exe_lowout(command: str, debug: bool = True, std_out_pipe: bool = False, std_err_pipe: bool = False) -> tuple:
     '''

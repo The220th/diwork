@@ -2,26 +2,45 @@
 
 import os
 import sys
-import argparse 
+import argparse
 
 from diwork_ways import *
 
 def main_calc_hash(args: list):
-    argc = len(args)
-    if(argc != 1):
-        pout("Syntax error. Expected: \"python folder_work.py hash {path_to_folder_or_file}\"")
-        exit()
-    folder = args[0]
+
+    parser = argparse.ArgumentParser(prog = "diwork hash",
+        description="Calculate hash of directory(s)")
+    parser.add_argument("folders_paths", type=str, nargs="+",
+                       help="Paths to directories whose hash will be calculated")
+    parser.add_argument("--exclude", type=str, nargs="+", default=None, action="append",
+                       help="Do not take these files or directories into consideration when calculating the hash")
+    parser = common_init_parser(parser)
+    args = parser.parse_args(args)
+    common_init_parse(args)
+
+    folders = args.folders_paths
+    files_exclude = args.exclude
+    if(files_exclude != None):
+        files_exclude = [shit[0] for shit in files_exclude]
+        check_files_exists_or_exit(files_exclude)
     err_out = []
-    folder_abs = os.path.abspath(folder)
-    if(is_file(folder_abs) == True):
-        pout(f"Hash of the file \"{folder_abs}\": \"{get_hash_file(folder_abs)}\"")
-    elif(is_folder(folder_abs) == True):
-        files = getFilesList(folder_abs)
+    folders_abs = [os.path.abspath(folder_i) for folder_i in folders]
+    for folder_i in folders_abs:
+        if(is_folder(folder_i) == False):
+            pout(f"No such directory: \"{folder_i}\"")
+            exit()
+        if(folders_abs.count(folder_i) > 1):
+            pout(f"Directory \"{folder_i}\" occurs several ({folders_abs.count(folder_i)}) times. Exiting...")
+            exit()
+
+    dir_hashes = {}
+    for folder_i in folders_abs:
+        pout(f"\nCalculating hash of directory \"{folder_i}\":")
+        files = getFilesList(folder_i)
         files = sorted(files)
+        files = exclude_files(files, files_exclude)
         files_len = len(files)
         hashes = []
-        d_4table = {}
         gi = 0
         for file_i in files:
             gi+=1
@@ -30,8 +49,7 @@ def main_calc_hash(args: list):
                 continue
             hash_i = get_hash_file(file_i)
             hashes.append(hash_i)
-            d_4table[file_i] = hash_i
-            pout(f"({gi}/{files_len}) Hash of \"{file_i}\" = \"{hash_i}\"")
+            pout(f"({gi}/{files_len}) Hash \"{hash_i}\" have file \"{file_i}\". ")
         hashes = sorted(hashes)
 
         hash_files = ""
@@ -44,32 +62,26 @@ def main_calc_hash(args: list):
                 li = 0
         hash_files = get_hash_str(hash_files)
 
-        try:
-            import tabulate
-            files_4table = list(d_4table.keys())
-            rows = []
-            for file_i in files_4table:
-                rows.append([file_i, d_4table[file_i]])
-            table_str = tabulate.tabulate(rows, headers=["file_name", "hash"])
-            pout(table_str)
-            #write2File_str("table_out.txt", table_str)
-        except:
-            pout(f"Cannot import tabulate. No table. ")
+        pout(f"\n\nHash (not considering the files hierarchy) of the directory \"{folder_i}\": \n==============================\n{hash_files}\n==============================\n")
+        dir_hashes[folder_i] = hash_files
 
         # from io import StringIO
         # o = StringIO()
         # for hash_i in hashes:
         #     o.write(hash_i)
         # hash_files = get_hash_str(o.getvalue())
-        if(len(err_out) != 0):
-            pout(f"\n===============\nSome troubles happened:")
-            for err_i in err_out:
-                pout(f"\t{err_i}")
-            pout(f"===============")
+    if(len(err_out) != 0):
+        pout(f"\n===============\nSome troubles happened:")
+        for err_i in err_out:
+            pout(f"\t{err_i}")
+        pout(f"===============")
 
-        pout(f"\n\nHash (not considering the files hierarchy) of the directory \"{folder_abs}\": \n==============================\n{hash_files}\n==============================\n")
-
-    else:
-        pout(f"No such file or directory: \"{folder_abs}\"")
-    
-    pout("=============== Done! ===============")
+    col_1 = []
+    col_2 = []
+    for el in dir_hashes:
+        col_1.append(dir_hashes[el])
+        col_2.append(el)
+    pout("\n\nHashes of directories: ")
+    for i in range(len(col_1)):
+        print(f"{col_1[i]} | {col_2[i]}")
+    pout("\n=============== Done! ===============")

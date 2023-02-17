@@ -1,6 +1,0 @@
-#!/bin/bash
-
-export _folder=$(dirname "$(realpath "$0")")
-
-(cd $_folder/diwork-main && python3 diwork.py $@)
-

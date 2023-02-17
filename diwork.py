@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 
-# V0.4
+VERSION = "V0.5"
 
 import os
 import sys
@@ -12,7 +12,7 @@ __WORK_DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.abspath(f"{__WORK_DIR}/diwork_ways"))
 sys.path.insert(0, os.path.abspath(f"{__WORK_DIR}/diwork_mains"))
 
-from diwork_ways import pout
+from diwork_ways import pout, Global
 
 from diwork_mains import main_calc_hash, main_clone, main_diff, main_difx, main_repeats, main_exec
 
@@ -20,6 +20,7 @@ from diwork_mains import main_calc_hash, main_clone, main_diff, main_difx, main_
 if __name__ == "__main__":
     SyntaxError_str = "Syntax error. Expected: \"> python folder_work.py {hash, clone, diff, difx, repeats, exec} ...\""
     argc = len(sys.argv)
+    Global.version = VERSION
     if(argc < 2):
         pout(SyntaxError_str)
         exit()
