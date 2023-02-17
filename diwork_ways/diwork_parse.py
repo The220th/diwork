@@ -16,7 +16,7 @@ def common_init_parser(parser: "ArgumentParser") -> "ArgumentParser":
     parser.add_argument("--hash_mode", type=int, choices=[0,1,2], default=1, required=False,
                        help="Hash mode: 0 is sha256sum, 1 is hashlib.sha256, 2 is sha512sum. Default 1.")
 
-    parser.add_argument("--version", action="version", version=f"%(prog)s {Global.version}",
+    parser.add_argument("--version", action="version", version=f"diwork {Global.version}",
                        help="Check version of diwork")
 
     return parser

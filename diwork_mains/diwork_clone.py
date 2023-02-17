@@ -23,6 +23,13 @@ def main_clone(args: list):
         pout(f"\"{folder2_abs}\" is not folder. ")
         exit()
     
+    if(folder1_abs in folder2_abs):
+        pout(f"Directory \"{folder1_abs}\" contains directory \"{folder2_abs}\". Exiting...")
+        exit()
+    if(folder2_abs in folder1_abs):
+        pout(f"Directory \"{folder2_abs}\" contains directory \"{folder1_abs}\". Exiting...")
+        exit()
+    
     if(is_folder_empty(folder2_abs) == False):
         pout(f"Folder \"{folder2_abs}\" is not empty. ")
         pout(f"===============\n\t All files in \"{folder2_abs}\" will be removed before clonning. \n===============")
