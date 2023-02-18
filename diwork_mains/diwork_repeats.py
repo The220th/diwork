@@ -9,6 +9,7 @@ from diwork_ways import *
 def main_repeats(args: list):
     argc = len(args)
     if(argc != 1):
+        pout("This module will find duplicates (exactly the same files) in the directory.\n")
         pout("Syntax error. Expected: \"python folder_work.py repeats {folder_path}\"")
         exit()
     folder = args[0]

@@ -6,8 +6,10 @@ from .diwork_diff import main_diff
 from .diwork_difx import main_difx
 from .diwork_repeats import main_repeats
 from .diwork_exec import main_exec
+from .diwork_help import main_help
 
 __all__ = [
+    "main_help",
     "main_calc_hash",
     "main_clone",
     "main_diff",

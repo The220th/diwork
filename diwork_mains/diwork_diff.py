@@ -79,6 +79,7 @@ def main_diff(args: list):
     argc = len(args)
     mode_explain_str = "\t- n: show New files\n\t- c: show Changed files\n\t- r: show Removed files\n\t- m: show Moved (renamed) files\n\t- i: show Identical files"
     if(argc != 3):
+        pout("This module will show all changes in directories.\n")
         pout("Syntax error. Expected: \"python folder_work.py diff {n|c|r|m|i} {folder_old} {folder_new}\", where: ")
         pout(mode_explain_str)
         exit()

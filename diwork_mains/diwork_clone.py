@@ -9,6 +9,7 @@ from diwork_ways import *
 def main_clone(args: list):
     argc = len(args)
     if(argc != 2):
+        pout("This module will clone all the contents of {folder_src} to {folder_dest}. As a result, {folder_src} and {folder_dest} will be completely identical.\n")
         pout("Syntax error. Expected: \"python folder_work.py clone {folder_src} {folder_dest}\"")
         exit()
     folder1 = args[0]

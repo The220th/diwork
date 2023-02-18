@@ -11,6 +11,7 @@ def main_exec(args: list):
     IN_REP = "{in}"
     OUT_REP = "{out}"
     if(argc != 3):
+        pout("This module will help you execute a command with all files in certain directories.\n")
         pout("Syntax error. Expected: \"python folder_work.py exec {folder_in} {folder_out} {command}\", where: ")
         pout("\t{command} like this \"convert {in} {out}\", where: ")
         pout("\t\t{in} each files from {folder_in} ")

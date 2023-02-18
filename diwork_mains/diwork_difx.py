@@ -9,6 +9,7 @@ from diwork_ways import *
 def main_difx(args: list):
     argc = len(args)
     if(argc != 2):
+        pout("This module will show the difference between the two directories.\n")
         pout("Syntax error. Expected: \"python folder_work.py difx {folder1} {folder2}\"")
         exit()
     folder1 = args[0]

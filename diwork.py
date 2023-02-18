@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 
-VERSION = "V0.52"
+VERSION = "V0.53"
 
 import os
 import sys
@@ -14,11 +14,12 @@ sys.path.insert(0, os.path.abspath(f"{__WORK_DIR}/diwork_mains"))
 
 from diwork_ways import pout, Global
 
-from diwork_mains import main_calc_hash, main_clone, main_diff, main_difx, main_repeats, main_exec
+from diwork_mains import main_calc_hash, main_clone, main_diff, main_difx, main_repeats, main_exec, main_help
 
 
 if __name__ == "__main__":
-    SyntaxError_str = "Syntax error. Expected: \"> python folder_work.py {hash, clone, diff, difx, repeats, exec} ...\""
+    MODULES = "{help, hash, clone, diff, difx, repeats, exec}"
+    SyntaxError_str = f"Syntax error. Expected: \"> python folder_work.py {MODULES} ...\""
     argc = len(sys.argv)
     Global.version = VERSION
     if(argc < 2):
@@ -38,6 +39,8 @@ if __name__ == "__main__":
             main_difx(sys.argv[2:])
         elif(sub_modul_name == "exec"):
             main_exec(sys.argv[2:])
+        elif(sub_modul_name == "help"):
+            main_help(sys.argv[2:], MODULES)
         else:
             pout(SyntaxError_str)
             exit()
