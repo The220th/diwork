@@ -7,13 +7,23 @@ import argparse
 from diwork_ways import *
 
 def main_repeats(args: list):
-    argc = len(args)
-    if(argc != 1):
-        pout("This module will find duplicates (exactly the same files) in the directory.\n")
-        pout("Syntax error. Expected: \"python folder_work.py repeats {folder_path}\"")
-        exit()
-    folder = args[0]
+    parser = argparse.ArgumentParser(prog = "diwork repeats",
+        description="This module will find duplicates (exactly the same files) in the directory")
+    parser.add_argument("folder_path", type=str, nargs=1,
+                       help="Path to directory where repeats will be found")
+    parser.add_argument("--delete", default=False, action='store_true',
+                       help="Deletes files so that only 1 duplicate remains")
+    parser.add_argument("--yes", default=False, action='store_true',
+                       help="No interractive. Answer \"yes\" always. ")
+    parser = common_init_parser(parser)
+    args = parser.parse_args(args)
+    common_init_parse(args)
+
+    folder = args.folder_path[0]
+    IF_DELETE = args.delete
+    IF_YES = args.yes
     err_out = []
+    files_to_delete = []
     folder_abs = os.path.abspath(folder)
     if(is_folder(folder_abs) == False):
         pout(f"\"{folder_abs}\" is not folder. ")
@@ -43,11 +53,29 @@ def main_repeats(args: list):
         if(len(fl) > 1):
             IF_AT_LEAST_ONE = True
             pout(f"* Hash \"{hash_i}\" have files: ")
+            li = 0
             for file_i in fl:
-                pout(f"\t{file_i}")
+                if(li > 0 and IF_DELETE):
+                    pout(f"\t{file_i} (will be deleted)")
+                    files_to_delete.append(file_i)
+                else:
+                    pout(f"\t{file_i}")
+                li-=-1
             pout("")
+
     if(IF_AT_LEAST_ONE == False):
         pout("\tNo such files")
+    else:
+        pout("\nThis file will be delete:")
+        for del_file_i in files_to_delete:
+            pout(f"\"{del_file_i}\"")
+        if(IF_YES == False):
+            input(f"Type enter to continue or press CTRL+C to cancel.")
+        for del_file_i in files_to_delete:
+            os.remove(del_file_i)
+        pout("DELETED: OK")
+
+
 
     if(len(err_out) != 0):
         pout(f"\n===============\nSome troubles happened:")
