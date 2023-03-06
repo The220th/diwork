@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 
-VERSION = "V0.53"
+VERSION = "V0.55"
 
 import os
 import sys
