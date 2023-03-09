@@ -6,6 +6,14 @@ import argparse
 
 from diwork_ways import *
 
+def define_clone_command() -> "str":
+    if sys.platform == "linux" or platform == "linux2" or sys.platform == "darwin":
+        return "cp"
+    elif sys.platform == "win32": # In windows cp == copy
+        return "copy"
+    else:
+        pout("(define_clone_command) Failed successfully. ")
+
 def main_clone(args: list):
     argc = len(args)
     if(argc != 2):
@@ -31,19 +39,8 @@ def main_clone(args: list):
         pout(f"Directory \"{folder2_abs}\" contains directory \"{folder1_abs}\". Exiting...")
         exit()
     
-    if(is_folder_empty(folder2_abs) == False):
-        pout(f"Folder \"{folder2_abs}\" is not empty. ")
-        pout(f"===============\n\t All files in \"{folder2_abs}\" will be removed before clonning. \n===============")
-        pout("Continue? Type \"yes\" in capital letter if continue \n> ", endl=False)
-        user_in = input()
-        if(user_in.strip() != "YES"):
-            pout("Exitting")
-            exit()
-        rm_folder_content(folder2_abs)
-        if(is_folder_empty(folder2_abs) == True):
-            pout(f"All files from folder \"{folder2_abs}\" removed. This folder is empty now. Clonning...")
-        else:
-            pout(f"Cannot clean folder \"{folder2_abs}\"! Exiting ")
+    delete_all_if_dir_not_empty(folder2_abs)
+    pout("Clonning...")
 
     dirs_abs_1 = getDirsList(folder1_abs)
     dirs_abs_1 = sorted(dirs_abs_1)
@@ -58,6 +55,7 @@ def main_clone(args: list):
     files_abs_1 = getFilesList(folder1_abs)
     files_abs_1 = sorted(files_abs_1)
     gi, N = 0, len(files_abs_1)
+    COPY_COMMAND = define_clone_command()
     for file_i_1 in files_abs_1:
         gi+=1
         if(is_file(file_i_1) == False):
@@ -65,9 +63,8 @@ def main_clone(args: list):
             continue
         file_i_rel = rel_path(file_i_1, folder1_abs)
         file_i_2 = os.path.join(folder2_abs, file_i_rel)
-        # In windows cp=copy
         pout(f"({gi}/{N}) Copying \"{file_i_rel}\"... ")
-        exe_out = exe(f"cp \"{file_i_1}\" \"{file_i_2}\"")
+        exe_out = exe(f"{COPY_COMMAND} \"{file_i_1}\" \"{file_i_2}\"")
         if(exe_out[1] != ""):
             err_out.append(f"ERROR: {exe_out[1]}")
             continue

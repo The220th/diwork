@@ -11,6 +11,7 @@ cd package-building && bash build.sh
 
 # $HOME/.local/bin/ must be in PATH.
 tar -C "$HOME/.local/bin/" -xvaf diwork.tar.gz
+rm diwork.tar.gz
 ```
 
 # Usage

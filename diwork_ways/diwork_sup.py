@@ -134,6 +134,37 @@ def exclude_files(src_files: list, exclude_files: list) -> list:
                 res.append(file_i) 
     return res
 
+def delete_all_if_dir_not_empty(dir_path: str):
+    if(is_folder_empty(dir_path) == False):
+        pout(f"Folder \"{dir_path}\" is not empty. ")
+        pout(f"===============\n\t All files in \"{dir_path}\" will be removed before continue. \n===============")
+        pout("Continue? Type \"yes\" in capital letter to continue or \"no\" to exit. \n> ", endl=False)
+        
+        while(True):
+            user_in = input().strip()
+            if(user_in != "YES"):
+                pout("Type \"YES\" in capital letter to remove all content of directory \"{dir_path}\" or press CTRL+C or type \"no\" to exit. ")
+            if(user_in.lower() == "no"):
+               pout("Exitting...")
+               exit()
+            if(user_in == "YES"):
+                break
+            pout("> ", endl=False)
+        rm_folder_content(dir_path)
+        if(is_folder_empty(dir_path) == True):
+            pout(f"All files from folder \"{dir_path}\" removed. This folder is empty now.")
+        else:
+            pout(f"Cannot clean folder \"{dir_path}\"! Exiting ")
+            exit()
+
+def get_dirs_needed_for_files(files: list) -> list:
+    dirs = set()
+    for file_i in files:
+        dir_i = os.path.dirname(file_i)
+        dirs.add(dir_i)
+    dirs = sorted(list(dirs))
+    return dirs
+
 def exe_lowout(command: str, debug: bool = True, std_out_pipe: bool = False, std_err_pipe: bool = False) -> tuple:
     '''
     Аргумент command - команда для выполнения в терминале. Например: "ls -lai ."
@@ -194,4 +225,7 @@ def exe(command: str, debug: bool = True, std_out_fd = subprocess.PIPE, std_err_
         proc = subprocess.run(command, shell=True, stdout=std_out_fd, stderr=std_err_fd, input=stdin_msg.encode("utf-8"))
     
     #return (proc.stdout.decode("utf-8"), proc.stderr.decode("utf-8"))
-    return (proc.stdout.decode("utf-8"), proc.stderr.decode("utf-8"), proc.returncode)
+
+    res_stdout = proc.stdout.decode("utf-8") if proc.stdout != None else None
+    res_errout = proc.stderr.decode("utf-8") if proc.stderr != None else None
+    return (res_stdout, res_errout, proc.returncode)

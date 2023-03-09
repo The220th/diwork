@@ -103,20 +103,8 @@ def main_exec(args: list):
     else:
         folder_out_abs = os.path.abspath(folder_out)
 
-
-    if(folder_out != "" and is_folder_empty(folder_out_abs) == False):
-        pout(f"Folder \"{folder_out_abs}\" is not empty. ")
-        pout(f"===============\n\t All files in \"{folder_out_abs}\" will be removed before exec. \n===============")
-        pout("Continue? Type \"yes\" in capital letter if continue \n> ", endl=False)
-        user_in = input()
-        if(user_in.strip() != "YES"):
-            pout("Exitting")
-            exit()
-        rm_folder_content(folder_out_abs)
-        if(is_folder_empty(folder_out_abs) == True):
-            pout(f"All files from folder \"{folder_out_abs}\" removed. This folder is empty now. Clonning...")
-        else:
-            pout(f"Cannot clean folder \"{folder_out_abs}\"! Exiting ")
+    if(folder_out != "" ):
+        delete_all_if_dir_not_empty(folder_out_abs)
 
     if(folder_out != ""):
         dirs_abs_in = getDirsList(folder_in_abs)
