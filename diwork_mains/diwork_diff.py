@@ -9,7 +9,7 @@ from diwork_ways import *
 
 def diff_new_files(dr1, dr2) -> list:
     '''Do not need hash'''
-    files_rel_old, files_rel_new = list(dr1.keys()), list(dr2.keys())
+    files_rel_old, files_rel_new = set(dr1.keys()), set(dr2.keys())
     res = []
     for file_i in files_rel_new:
         if(file_i not in files_rel_old):
@@ -17,7 +17,7 @@ def diff_new_files(dr1, dr2) -> list:
     return res
 
 def diff_changes_files(dr1, dr2) -> list:
-    files_rel_old, files_rel_new = list(dr1.keys()), list(dr2.keys())
+    files_rel_old, files_rel_new = set(dr1.keys()), set(dr2.keys())
     res = []
     for file_i in files_rel_new:
         if(file_i in files_rel_old):
@@ -27,7 +27,7 @@ def diff_changes_files(dr1, dr2) -> list:
 
 def diff_removed_files(dr1, dr2) -> list:
     '''Do not need hash'''
-    files_rel_old, files_rel_new = list(dr1.keys()), list(dr2.keys())
+    files_rel_old, files_rel_new = set(dr1.keys()), set(dr2.keys())
     res = []
     for file_i in files_rel_old:
         if(file_i not in files_rel_new):
@@ -35,7 +35,7 @@ def diff_removed_files(dr1, dr2) -> list:
     return res
 
 def diff_moved_files(dr1, dr2, old_folder_path, new_folder_path) -> list:
-    files_rel_old, files_rel_new = list(dr1.keys()), list(dr2.keys())
+    files_rel_old, files_rel_new = set(dr1.keys()), set(dr2.keys())
     res = []
     for file_i_old in files_rel_old:
         S = f"File \"[{old_folder_path}] {file_i_old}\" has been moved (renamed) to: \n"
@@ -58,7 +58,7 @@ def diff_identical_files(d1, d2, old_folder_path, new_folder_path) -> list:
         new_folder_prefix = " "*len_diff
     else:
         old_folder_prefix = " "*(-len_diff)
-    files_abs_old, files_abs_new = list(d1.keys()), list(d2.keys())
+    files_abs_old, files_abs_new = set(d1.keys()), set(d2.keys())
     hashes1, hashes2 = list(d1.values()), list(d2.values())
     hashes = set(hashes1 + hashes2)
     res = []
@@ -139,6 +139,8 @@ def main_diff(args: list):
         d2[file_i] = file_i_hash
         file_i_rel = rel_path(file_i, folder_new_abs)
         dr2[file_i_rel] = file_i_hash
+
+    pout("\nHashes calculated. Calculating differences. \n")
 
     for mode_i in mode:
         if(mode_i == "n"):
