@@ -8,6 +8,7 @@ from diwork_ways import *
 
 
 def diff_new_files(dr1, dr2) -> list:
+    '''Do not need hash'''
     files_rel_old, files_rel_new = list(dr1.keys()), list(dr2.keys())
     res = []
     for file_i in files_rel_new:
@@ -25,6 +26,7 @@ def diff_changes_files(dr1, dr2) -> list:
     return res
 
 def diff_removed_files(dr1, dr2) -> list:
+    '''Do not need hash'''
     files_rel_old, files_rel_new = list(dr1.keys()), list(dr2.keys())
     res = []
     for file_i in files_rel_old:
@@ -77,7 +79,7 @@ def diff_identical_files(d1, d2, old_folder_path, new_folder_path) -> list:
 
 def main_diff(args: list):
     argc = len(args)
-    mode_explain_str = "\t- n: show New files\n\t- c: show Changed files\n\t- r: show Removed files\n\t- m: show Moved (renamed) files\n\t- i: show Identical files"
+    mode_explain_str = "\t- n: show New files (does not need the hash)\n\t- c: show Changed files\n\t- r: show Removed files (does not need the hash)\n\t- m: show Moved (renamed) files\n\t- i: show Identical files"
     if(argc != 3):
         pout("This module will show all changes in directories.\n")
         pout("Syntax error. Expected: \"python folder_work.py diff {n|c|r|m|i} {folder_old} {folder_new}\", where: ")
@@ -103,6 +105,10 @@ def main_diff(args: list):
         if(mode.count(letter_i) > 1):
             pout(f"\"{letter_i}\" cannot repeat. ")
             exit()
+    if(len(mode) == 2 and mode[0] in "nr" and mode[1] in "nr"):
+        HASH_NOT_NEEDED = True
+    else:
+        HASH_NOT_NEEDED = False
     d1, d2, dr1, dr2 = {}, {}, {}, {}
     files_abs_old = sorted(getFilesList(folder_old_abs))
     files_abs_new = sorted(getFilesList(folder_new_abs))
@@ -112,8 +118,11 @@ def main_diff(args: list):
         if(is_file(file_i) == False):
             err_out.append(f"\"{file_i}\" is not file or does not exists, it will be skipped. ")
             continue
-        file_i_hash = get_hash_file(file_i)
-        pout(f"({gi}/{N}) Calculated hash of \"{file_i}\": {file_i_hash}")
+        if(HASH_NOT_NEEDED == True):
+            file_i_hash = ""
+        else:
+            file_i_hash = get_hash_file(file_i)
+            pout(f"({gi}/{N}) Calculated hash of \"{file_i}\": {file_i_hash}")
         d1[file_i] = file_i_hash
         file_i_rel = rel_path(file_i, folder_old_abs)
         dr1[file_i_rel] = file_i_hash
@@ -122,8 +131,11 @@ def main_diff(args: list):
         if(is_file(file_i) == False):
             err_out.append(f"\"{file_i}\" is not file or does not exists, it will be skipped. ")
             continue
-        file_i_hash = get_hash_file(file_i)
-        pout(f"({gi}/{N}) Calculated hash of \"{file_i}\": {file_i_hash}")
+        if(HASH_NOT_NEEDED == True):
+            file_i_hash = ""
+        else:
+            file_i_hash = get_hash_file(file_i)
+            pout(f"({gi}/{N}) Calculated hash of \"{file_i}\": {file_i_hash}")
         d2[file_i] = file_i_hash
         file_i_rel = rel_path(file_i, folder_new_abs)
         dr2[file_i_rel] = file_i_hash
