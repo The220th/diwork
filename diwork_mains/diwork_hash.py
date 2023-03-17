@@ -6,7 +6,7 @@ import argparse
 
 from diwork_ways import *
 
-def main_calc_hash(args: list):
+def main_hash(args: list):
 
     parser = argparse.ArgumentParser(prog = "diwork hash",
         description="Calculate hash of directory(s)")
@@ -52,24 +52,13 @@ def main_calc_hash(args: list):
             pout(f"({gi}/{files_len}) Hash \"{hash_i}\" have file \"{file_i}\". ")
         hashes = sorted(hashes)
 
-        hash_files = ""
-        li = 0
-        for hash_i in hashes:
-            hash_files += hash_i
-            li-=-1
-            if(li == 30):
-                hash_files = get_hash_str(hash_files)
-                li = 0
-        hash_files = get_hash_str(hash_files)
+        # IF CHANGE, then change make_archive_one_folder in diwork_archive.py (its legacy_version)
+        hash_files = get_hash_of_hashes(hashes) 
 
         pout(f"\n\nHash (not considering the files hierarchy) of the directory \"{folder_i}\": \n==============================\n{hash_files}\n==============================\n")
         dir_hashes[folder_i] = hash_files
 
-        # from io import StringIO
-        # o = StringIO()
-        # for hash_i in hashes:
-        #     o.write(hash_i)
-        # hash_files = get_hash_str(o.getvalue())
+
     if(len(err_out) != 0):
         pout(f"\n===============\nSome troubles happened:")
         for err_i in err_out:

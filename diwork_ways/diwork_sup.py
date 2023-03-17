@@ -4,6 +4,7 @@ import os
 import sys
 import subprocess
 import hashlib
+import datetime
 
 class Global():
     version = None
@@ -75,6 +76,23 @@ def write2File_str(fileName : str, s : str) -> None:
         temp.write(s)
         temp.flush()
 
+def get_nice_size(size_bytes: int) -> str:
+    if(size_bytes < 1024):
+        return f"{size_bytes} B"
+    elif(size_bytes < 1024*1024):
+        return f"{size_bytes // 1024} KB"
+    elif(size_bytes < 1024*1024*1024):
+        return f"{size_bytes // (1024*1024)} MB"
+    elif(size_bytes < 1024*1024*1024*1024):
+        return f"{size_bytes // (1024*1024*1024)} GB"
+    else:
+        return f"{size_bytes // (1024*1024*1024*1024)} TB"
+
+def get_time_str() -> str:
+    # time_str = datetime.datetime.now().strftime("[%y.%m.%d %H:%M:%S.%f]")
+    time_str = datetime.datetime.now().strftime("%y.%m.%d %H:%M:%S")
+    return time_str
+
 def get_hash_file(file_path: str) -> str:
     if(Global.hash_mode == 1):
         buff_BLOCKSIZE = 65536 # 64 kB
@@ -113,6 +131,28 @@ def get_hash_str(s: str):
             exit()
         res = exe_res[0]
         return res[:res.find(" ")]
+
+def get_hash_of_hashes(hashes: list) -> str:
+
+    # IF CHANGE, then change make_archive_one_folder in diwork_archive.py (its legacy_version)
+
+    # from io import StringIO
+    # o = StringIO()
+    # for hash_i in hashes:
+    #     o.write(hash_i)
+    # hash_files = get_hash_str(o.getvalue())
+    # return hash_files
+    hash_files = ""
+    li = 0
+    for hash_i in hashes:
+        hash_files += hash_i
+        li-=-1
+        if(li == 30):
+            hash_files = get_hash_str(hash_files)
+            li = 0
+    hash_files = get_hash_str(hash_files)
+    return hash_files
+
 
 def exclude_files(src_files: list, exclude_files: list) -> list:
     """
