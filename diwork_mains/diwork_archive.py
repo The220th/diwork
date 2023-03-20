@@ -24,6 +24,7 @@ def make_archive_one_folder(folder_path: str, path_to_zip: str, cur_iter: str = 
     folder_hash: hash,
     date: str(DD.MM.YY HH:MM:SS),
     legacy_version: int
+    hash_mode: int
     """
     legacy_version = 1
     d = {"hashes":{}, "sizes": {}}
@@ -51,6 +52,7 @@ def make_archive_one_folder(folder_path: str, path_to_zip: str, cur_iter: str = 
         d["folder_hash"] = hash_files = get_hash_of_hashes(sorted(d["hashes"].values()))
         d["folder_size"] = sum(d["sizes"].values())
         d["date"] = get_time_str()
+        d["hash_mode"] = Global.hash_mode
         d["legacy_version"] = legacy_version # if calculating hash will be changed or changed other things, this needed change too (increment)
         zfd.writestr("archive_info.json", json.dumps(d).encode("utf-8"))
     
