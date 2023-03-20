@@ -6,7 +6,7 @@ import argparse
 
 from diwork_ways import *
 
-def main_hash(args: list):
+def main_hash(args: list) -> "list of hashes":
 
     parser = argparse.ArgumentParser(prog = "diwork hash",
         description="Calculate hash of directory(s)")
@@ -74,3 +74,5 @@ def main_hash(args: list):
     for i in range(len(col_1)):
         print(f"{col_1[i]} | {col_2[i]}")
     pout("\n=============== Done! ===============")
+
+    return list(dir_hashes.values())

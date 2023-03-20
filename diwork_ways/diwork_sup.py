@@ -49,14 +49,17 @@ def is_folder_empty(folder_path: str) -> bool:
 def rel_path(file_path: str, folder_path: str) -> str:
     return os.path.relpath(file_path, folder_path)
 
-def rm_folder_content(folder_path: str):
-    """Удаляет всё содержимое папки. Саму папку не трогает"""
+def rm_folder_content(folder_path: str, root_dir_too: bool = False, does_not_exists_is_ok = False):
+    """Удаляет всё содержимое папки. Саму папку не трогает, если root_dir_too == False"""
+    if(does_not_exists_is_ok == True and is_folder(folder_path) == False):
+        return
     for root, dirs, files in os.walk(folder_path, topdown=False):
         for file_i in files:
             os.remove(os.path.join(root, file_i))
         for dir in dirs:
             os.rmdir(os.path.join(root, dir))
-    # os.rmdir(folder_path)
+    if(root_dir_too == True):
+        os.rmdir(folder_path)
 
 def pout(msg : str, endl = True):
     if(endl == False):
