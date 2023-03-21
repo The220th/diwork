@@ -3,6 +3,7 @@
 import os
 import sys
 import argparse 
+import shutil
 
 from diwork_ways import *
 
@@ -14,12 +15,17 @@ def define_clone_command() -> "str":
     else:
         pout("(define_clone_command) Failed successfully. ")
 
-def cp(src: str, dest: str) -> None:
-    COPY_COMMAND = define_clone_command()
-    exe_out = exe(f"{COPY_COMMAND} \"{src}\" \"{dest}\"")
-    if(exe_out[1] != ""):
-        pout(f"ERROR: {exe_out[1]}")
-        exit()
+def cp(src: str, dest: str, copy_mode: int = 0) -> None:
+    if(copy_mode == 0):
+        shutil.copy(src, dest)
+    elif(copy_mode == 1):
+        COPY_COMMAND = define_clone_command()
+        exe_out = exe(f"{COPY_COMMAND} \"{src}\" \"{dest}\"")
+        if(exe_out[1] != ""):
+            pout(f"ERROR: {exe_out[1]}")
+            exit()
+    else:
+        pout("(cp) Failed successfully. ")
 
 def main_clone(args: list):
     parser = argparse.ArgumentParser(prog = "diwork clone",
@@ -30,6 +36,8 @@ def main_clone(args: list):
                        help="Path to destination directory")
     parser.add_argument("--symlink_mode", type=int, choices=[0,1,2], default=2, required=False,
                        help="What to do with links: 0 - ignor, 1 - consider link content, 2 - use the file where the link refers to. Default 2.")
+    parser.add_argument("--copy_mode", type=int, choices=[0,1], default=0, required=False,
+                       help="How to copy files: 0 - python shutil, 1 - system cp (copy). Default 0.")
     parser = common_init_parser(parser)
     args = parser.parse_args(args)
     common_init_parse(args)
@@ -53,6 +61,7 @@ def main_clone(args: list):
         pout(f"Directory \"{folder2_abs}\" contains directory \"{folder1_abs}\". Exiting...")
         exit()
     symlink_mode = args.symlink_mode
+    copy_mode = args.copy_mode
     
     delete_all_if_dir_not_empty(folder2_abs)
     pout("Clonning...")
@@ -92,14 +101,19 @@ def main_clone(args: list):
                     err_out.append(f"\"{file_i_1}\" refers to nonexistent file, it will be skipped. ")
                     continue
                 pout(f"({gi}/{N}) Copying \"{file_i_rel}\" (\"{file_i_1}\"=\"{linkto}\" -> \"{file_i_2}\")... ")
-                cp(linkto, file_i_2)
+                cp(linkto, file_i_2, copy_mode)
             else:
                 pout(f"Failed successfully. symlink_mode={symlink_mode}, cannot understand it. ")
                 exit()
         else:
             pout(f"({gi}/{N}) Copying \"{file_i_rel}\"... ")
-            cp(file_i_1, file_i_2)
-    exe("sync")
+            cp(file_i_1, file_i_2, copy_mode)
+    if(copy_mode == 0):
+        os.sync()
+    elif(copy_mode == 1):
+        exe("sync")
+    else:
+        pass
 
     if(len(err_out) != 0):
         pout(f"\n===============\nSome troubles happened:")
