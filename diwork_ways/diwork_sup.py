@@ -79,6 +79,19 @@ def write2File_str(fileName : str, s : str) -> None:
         temp.write(s)
         temp.flush()
 
+def get_link_unwinding(link_path: str) -> str:
+    """Вернёт конечный файл, на который (рекурсивно) ссылаются сылки. """
+    if(os.path.exists(link_path) == False):
+        return None
+    elif(os.path.islink(link_path) == False):
+        return link_path
+    else:
+        linkto = os.readlink(link_path)
+        if(os.path.islink(linkto) == False):
+            return linkto
+        else:
+            return get_link_unwinding(linkto)
+
 def get_nice_size(size_bytes: int) -> str:
     if(size_bytes < 1024):
         return f"{size_bytes} B"

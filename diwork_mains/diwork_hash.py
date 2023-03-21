@@ -3,6 +3,7 @@
 import os
 import sys
 import argparse
+import shutil
 
 from diwork_ways import *
 
@@ -14,6 +15,8 @@ def main_hash(args: list) -> "list of hashes":
                        help="Paths to directories whose hash will be calculated")
     parser.add_argument("--exclude", type=str, nargs="+", default=None, action="append",
                        help="Do not take these files or directories into consideration when calculating the hash")
+    parser.add_argument("--symlink_mode", type=int, choices=[0,1,2], default=2, required=False,
+                       help="What to do with links: 0 - ignor, 1 - consider link content, 2 - use the file where the link refers to. Default 2.")
     parser = common_init_parser(parser)
     args = parser.parse_args(args)
     common_init_parse(args)
@@ -32,6 +35,7 @@ def main_hash(args: list) -> "list of hashes":
         if(folders_abs.count(folder_i) > 1):
             pout(f"Directory \"{folder_i}\" occurs several ({folders_abs.count(folder_i)}) times. Exiting...")
             exit()
+    symlink_mode = args.symlink_mode
 
     dir_hashes = {}
     for folder_i in folders_abs:
@@ -44,10 +48,30 @@ def main_hash(args: list) -> "list of hashes":
         gi = 0
         for file_i in files:
             gi+=1
-            if(is_file(file_i) == False):
+            if(os.path.islink(file_i) == False and is_file(file_i) == False):
                 err_out.append(f"\"{file_i}\" is not file or does not exists, it will be skipped. ")
                 continue
-            hash_i = get_hash_file(file_i)
+
+            if(os.path.islink(file_i) == True):
+                if(symlink_mode == 0):
+                    pout(f"({gi}/{files_len}) \"{file_i}\" is symlink and symlink_mode={symlink_mode}. So it will be skipped. ")
+                    continue
+                elif(symlink_mode == 1):
+                    linkto = os.readlink(file_i)
+                    hash_i = get_hash_str(linkto)
+                elif(symlink_mode == 2):
+                    linkto = get_link_unwinding(file_i)
+                    if(linkto == None):
+                        pout(f"({gi}/{files_len}) \"{file_i}\" refers to nonexistent file. So it will be skipped. ")
+                        err_out.append(f"\"{file_i}\" refers to nonexistent file, it will be skipped. ")
+                        continue
+                    file_i = linkto
+                    hash_i = get_hash_file(file_i)
+                else:
+                    pout(f"Failed successfully. symlink_mode={symlink_mode}, cannot understand it. ")
+                    exit()
+            else:
+                hash_i = get_hash_file(file_i)
             hashes.append(hash_i)
             pout(f"({gi}/{files_len}) Hash \"{hash_i}\" have file \"{file_i}\". ")
         hashes = sorted(hashes)
