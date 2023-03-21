@@ -14,14 +14,28 @@ def define_clone_command() -> "str":
     else:
         pout("(define_clone_command) Failed successfully. ")
 
-def main_clone(args: list):
-    argc = len(args)
-    if(argc != 2):
-        pout("This module will clone all the contents of {folder_src} to {folder_dest}. As a result, {folder_src} and {folder_dest} will be completely identical.\n")
-        pout("Syntax error. Expected: \"python folder_work.py clone {folder_src} {folder_dest}\"")
+def cp(src: str, dest: str) -> None:
+    COPY_COMMAND = define_clone_command()
+    exe_out = exe(f"{COPY_COMMAND} \"{src}\" \"{dest}\"")
+    if(exe_out[1] != ""):
+        pout(f"ERROR: {exe_out[1]}")
         exit()
-    folder1 = args[0]
-    folder2 = args[1]
+
+def main_clone(args: list):
+    parser = argparse.ArgumentParser(prog = "diwork clone",
+        description="This module will clone all the contents of {folder_src} to {folder_dest}. As a result, {folder_src} and {folder_dest} will be completely identical.")
+    parser.add_argument("folder_src", type=str, nargs=1,
+                       help="Path to source directory")
+    parser.add_argument("folder_dest", type=str, nargs=1,
+                       help="Path to destination directory")
+    parser.add_argument("--symlink_mode", type=int, choices=[0,1,2], default=2, required=False,
+                       help="What to do with links: 0 - ignor, 1 - consider link content, 2 - use the file where the link refers to. Default 2.")
+    parser = common_init_parser(parser)
+    args = parser.parse_args(args)
+    common_init_parse(args)
+    
+    folder1 = args.folder_src[0]
+    folder2 = args.folder_dest[0]
     err_out = []
     folder1_abs = os.path.abspath(folder1)
     folder2_abs = os.path.abspath(folder2)
@@ -38,6 +52,7 @@ def main_clone(args: list):
     if(folder2_abs in folder1_abs):
         pout(f"Directory \"{folder2_abs}\" contains directory \"{folder1_abs}\". Exiting...")
         exit()
+    symlink_mode = args.symlink_mode
     
     delete_all_if_dir_not_empty(folder2_abs)
     pout("Clonning...")
@@ -55,19 +70,35 @@ def main_clone(args: list):
     files_abs_1 = getFilesList(folder1_abs)
     files_abs_1 = sorted(files_abs_1)
     gi, N = 0, len(files_abs_1)
-    COPY_COMMAND = define_clone_command()
     for file_i_1 in files_abs_1:
         gi+=1
-        if(is_file(file_i_1) == False):
+        if(os.path.islink(file_i_1) == False and is_file(file_i_1) == False):
             err_out.append(f"\"{file_i_1}\" is not file or does not exists, it will be skipped. ")
             continue
+
         file_i_rel = rel_path(file_i_1, folder1_abs)
         file_i_2 = os.path.join(folder2_abs, file_i_rel)
-        pout(f"({gi}/{N}) Copying \"{file_i_rel}\"... ")
-        exe_out = exe(f"{COPY_COMMAND} \"{file_i_1}\" \"{file_i_2}\"")
-        if(exe_out[1] != ""):
-            err_out.append(f"ERROR: {exe_out[1]}")
-            continue
+        if(os.path.islink(file_i_1) == True):
+            if(symlink_mode == 0):
+                pout(f"({gi}/{N}) \"{file_i_1}\" is symlink and symlink_mode={symlink_mode}. So it will be skipped. ")
+                continue
+            elif(symlink_mode == 1):
+                linkto = os.readlink(file_i_1)
+                os.symlink(linkto, file_i_2)
+            elif(symlink_mode == 2):
+                linkto = get_link_unwinding(file_i_1)
+                if(linkto == None):
+                    pout(f"({gi}/{N}) \"{file_i_1}\" refers to nonexistent file. So it will be skipped. ")
+                    err_out.append(f"\"{file_i_1}\" refers to nonexistent file, it will be skipped. ")
+                    continue
+                pout(f"({gi}/{N}) Copying \"{file_i_rel}\" (\"{file_i_1}\"=\"{linkto}\" -> \"{file_i_2}\")... ")
+                cp(linkto, file_i_2)
+            else:
+                pout(f"Failed successfully. symlink_mode={symlink_mode}, cannot understand it. ")
+                exit()
+        else:
+            pout(f"({gi}/{N}) Copying \"{file_i_rel}\"... ")
+            cp(file_i_1, file_i_2)
     exe("sync")
 
     if(len(err_out) != 0):
