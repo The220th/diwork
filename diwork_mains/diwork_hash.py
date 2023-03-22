@@ -17,6 +17,8 @@ def main_hash(args: list) -> "list of hashes":
                        help="Do not take these files or directories into consideration when calculating the hash")
     parser.add_argument("--symlink_mode", type=int, choices=[0,1,2], default=2, required=False,
                        help="What to do with links: 0 - ignor, 1 - consider link content, 2 - use the file where the link refers to. Default 2.")
+    parser.add_argument("--hierarchy", default=False, action='store_true',
+                       help="If True, then the file hierarchy will be considered when calculating the hash. Default False")
     parser = common_init_parser(parser)
     args = parser.parse_args(args)
     common_init_parse(args)
@@ -36,6 +38,11 @@ def main_hash(args: list) -> "list of hashes":
             pout(f"Directory \"{folder_i}\" occurs several ({folders_abs.count(folder_i)}) times. Exiting...")
             exit()
     symlink_mode = args.symlink_mode
+    if_hierarchy = args.hierarchy
+    if(if_hierarchy == False):
+        RES_OUT_PREFIX_HIERARCHY = "not"
+    else:
+        RES_OUT_PREFIX_HIERARCHY = "with"
 
     dir_hashes = {}
     for folder_i in folders_abs:
@@ -77,9 +84,15 @@ def main_hash(args: list) -> "list of hashes":
         hashes = sorted(hashes)
 
         # IF CHANGE, then change make_archive_one_folder in diwork_archive.py (its legacy_version)
-        hash_files = get_hash_of_hashes(hashes) 
+        hash_files = get_hash_of_hashes(hashes)
+        if(if_hierarchy == True):
+            files_rel = [rel_path(fileh_i, folder_i) for fileh_i in files]
+            dirs = getDirsList(folder_i)
+            dirs_rel = [rel_path(dirh_i, folder_i) for dirh_i in dirs]
+            hash_hierarchy = get_hash_of_hashes(  sorted(files_rel+dirs_rel) )
+            hash_files = get_hash_str(hash_files + hash_hierarchy)
 
-        pout(f"\n\nHash (not considering the files hierarchy) of the directory \"{folder_i}\": \n==============================\n{hash_files}\n==============================\n")
+        pout(f"\n\nHash ({RES_OUT_PREFIX_HIERARCHY} considering the files hierarchy) of the directory \"{folder_i}\": \n==============================\n{hash_files}\n==============================\n")
         dir_hashes[folder_i] = hash_files
 
 
@@ -94,7 +107,7 @@ def main_hash(args: list) -> "list of hashes":
     for el in dir_hashes:
         col_1.append(dir_hashes[el])
         col_2.append(el)
-    pout("\n\nHashes of directories: ")
+    pout(f"\n\nHashes of directories ({RES_OUT_PREFIX_HIERARCHY} considering the files hierarchy): ")
     for i in range(len(col_1)):
         print(f"{col_1[i]} | {col_2[i]}")
     pout("\n=============== Done! ===============")
