@@ -7,7 +7,8 @@ from diwork_mains import main_hash
 
 from diwork_ways import rm_folder_content
 
-from unit_tests_sup import MakeRandomDir, mkdir, Global4Tests
+from unit_tests_sup import MakeRandomDir, Global4Tests
+from diwork_ways import mkdir
 
 class TestModuleClone(unittest.TestCase):
     

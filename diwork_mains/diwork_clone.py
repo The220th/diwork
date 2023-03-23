@@ -71,10 +71,11 @@ def main_clone(args: list):
     for dir_i_1 in dirs_abs_1:
         dir_i_rel = rel_path(dir_i_1, folder1_abs)
         dir_i_2 = os.path.join(folder2_abs, dir_i_rel)
-        exe_out = exe(f"mkdir -p \"{dir_i_2}\"")
-        if(exe_out[1] != ""):
-            pout(f"ERROR: {exe_out[1]}")
-            exit()
+        mkdir(dir_i_2)
+        #exe_out = exe(f"mkdir -p \"{dir_i_2}\"")
+        #if(exe_out[1] != ""):
+        #    pout(f"ERROR: {exe_out[1]}")
+        #    exit()
 
     files_abs_1 = getFilesList(folder1_abs)
     files_abs_1 = sorted(files_abs_1)

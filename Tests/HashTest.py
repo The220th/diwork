@@ -7,7 +7,8 @@ from diwork_mains import main_hash
 
 from diwork_ways import rm_folder_content
 
-from unit_tests_sup import MakeRandomDir, mkdir, Global4Tests, create_random_file
+from unit_tests_sup import MakeRandomDir, Global4Tests, create_random_file
+from diwork_ways import mkdir
 
 class TestModuleHash(unittest.TestCase):
     

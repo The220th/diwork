@@ -79,6 +79,9 @@ def write2File_str(fileName : str, s : str) -> None:
         temp.write(s)
         temp.flush()
 
+def mkdir(path: str, p: bool = True):
+    os.makedirs(path, exist_ok=True)
+
 def get_link_unwinding(link_path: str) -> str:
     """Вернёт конечный файл, на который (рекурсивно) ссылаются сылки. """
     if(os.path.exists(link_path) == False):

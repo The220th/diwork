@@ -3,8 +3,7 @@
 import random
 import os
 
-def mkdir(path: str, p: bool = True):
-    os.makedirs(path, exist_ok=True)
+from diwork_ways import mkdir
 
 def get_rnd_str(n: int = 10, r: "Random" = None) -> str:
     if(r == None):

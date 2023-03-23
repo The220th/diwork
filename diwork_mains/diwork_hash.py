@@ -45,14 +45,15 @@ def main_hash(args: list) -> "list of hashes":
         RES_OUT_PREFIX_HIERARCHY = "with"
 
     dir_hashes = {}
+    ggi, ggN = 0, len(folders_abs)
     for folder_i in folders_abs:
+        ggi-=-1
         pout(f"\nCalculating hash of directory \"{folder_i}\":")
         files = getFilesList(folder_i)
         files = sorted(files)
         files = exclude_files(files, files_exclude)
-        files_len = len(files)
         hashes = []
-        gi = 0
+        gi, files_len = 0, len(files)
         for file_i in files:
             gi+=1
             if(os.path.islink(file_i) == False and is_file(file_i) == False):
@@ -61,7 +62,7 @@ def main_hash(args: list) -> "list of hashes":
 
             if(os.path.islink(file_i) == True):
                 if(symlink_mode == 0):
-                    pout(f"({gi}/{files_len}) \"{file_i}\" is symlink and symlink_mode={symlink_mode}. So it will be skipped. ")
+                    pout(f"[{ggi}/{ggN}] ({gi}/{files_len}) \"{file_i}\" is symlink and symlink_mode={symlink_mode}. So it will be skipped. ")
                     continue
                 elif(symlink_mode == 1):
                     linkto = os.readlink(file_i)
@@ -69,7 +70,7 @@ def main_hash(args: list) -> "list of hashes":
                 elif(symlink_mode == 2):
                     linkto = get_link_unwinding(file_i)
                     if(linkto == None):
-                        pout(f"({gi}/{files_len}) \"{file_i}\" refers to nonexistent file. So it will be skipped. ")
+                        pout(f"[{ggi}/{ggN}] ({gi}/{files_len}) \"{file_i}\" refers to nonexistent file. So it will be skipped. ")
                         err_out.append(f"\"{file_i}\" refers to nonexistent file, it will be skipped. ")
                         continue
                     file_i = linkto
@@ -80,7 +81,7 @@ def main_hash(args: list) -> "list of hashes":
             else:
                 hash_i = get_hash_file(file_i)
             hashes.append(hash_i)
-            pout(f"({gi}/{files_len}) Hash \"{hash_i}\" have file \"{file_i}\". ")
+            pout(f"[{ggi}/{ggN}] ({gi}/{files_len}) Hash \"{hash_i}\" have file \"{file_i}\". ")
         hashes = sorted(hashes)
 
         # IF CHANGE, then change make_archive_one_folder in diwork_archive.py (its legacy_version)
