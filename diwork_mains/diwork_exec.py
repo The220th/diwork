@@ -49,44 +49,66 @@ def replace_REP_with_needed(command: str, REPS: list, REP_OBJ: object, file_abs_
             exit()
     return command
 
+def help4command(repo) -> str:
+    res = ""
+    res += "Expected: \"python diwork.py exec {folder_in} {folder_out} {command}\", where: \n"
+    res += "\t{command} like this \"convert \\\"{in}\\\" \\\"{out}\\\"\", where: \n"
+    res += f"\t\t{repo.IN_REP}" + " each file from {folder_in} \n"
+    res += f"\t\t{repo.OUT_REP}" + " each file from {folder_out} \n"
+    res += "\t{folder_out} must be empty string (\"\") if do not used\n"
+    res += "\n\tFor exampe, convert all jpg-pictures from \"path/to/jpg/image/folder\" to png-image:\n"
+    res += "\t> python diwork.py exec \"path/to/jpg/image/folder\" \"path/to/png/image/folder\" \"convert \\\"{in}\\\" \\\"{out}.png\\\"\"\n"
+    res += "\tTags for use:\n"
+    res += f"\t\t{repo.IN_REP}" + ": full path of files from {folder_in}\n"
+    res += f"\t\t{repo.OUT_REP}" + ": full path of files from {folder_out}\n"
+    res += f"\t\t{repo.IN_REP_REL}" + ": relative path of files from {folder_in}\n"
+    res += f"\t\t{repo.OUT_REP_REL}" + ": relative path of files from {folder_out}\n"
+    res += f"\t\t{repo.IN_REP_FN}" + ": name of files from {folder_in}\n"
+    res += f"\t\t{repo.OUT_REP_FN}" + ": name of files from {folder_out}\n"
+    res += f"\t\t{repo.IN_REP_FNO}" + ": name without extension of files from {folder_in}\n"
+    res += f"\t\t{repo.OUT_REP_FNO}" + ": name without extension of files from {folder_out}\n"
+    res += f"\t\t{repo.IN_REP_FNE}" + ": files extension (without dot) from {folder_in}\n"
+    res += f"\t\t{repo.OUT_REP_FNE}" + ": files extension (without dot) from {folder_out}\n"
+    res += f"\t\t{repo.IN_REP_DIR}" + ": directory of files from {folder_in}\n"
+    res += f"\t\t{repo.OUT_REP_DIR}" + ": directory of files from {folder_out}\n"
+    res += f"\t\t{repo.IN_REP_DIR_REL}" + ": relative path of directory of files from {folder_in}\n"
+    res += f"\t\t{repo.OUT_REP_DIR_REL}" + ": relative path of directory of files from {folder_out}\n"
+    res += f"\t\t{repo.IN_REP_INDEX}" + ": index of files from {folder_in}\n"
+    res += f"\t\t{repo.OUT_REP_INDEX}" + ": index of files from {folder_out}\n"
+    res += "Example 1: \"" + repo.IN_REP + "\" and \"" + repo.IN_REP_DIR +"/" + repo.IN_REP_FNO + "." + repo.IN_REP_FNE + "\" the same text.\n"
+    res += "Example 2: \"" + repo.OUT_REP_FN + "\" and \"" + repo.OUT_REP_FNO + "." + repo.OUT_REP_FNE +"\" the same text.\n"
+    return res
+
 def main_exec(args: list):
-    argc = len(args)
     repo = REP_OBJ()
     REPS_IN = [repo.IN_REP, repo.IN_REP_REL, repo.IN_REP_FN, repo.IN_REP_FNO, repo.IN_REP_FNE, repo.IN_REP_DIR, repo.IN_REP_DIR_REL, repo.IN_REP_INDEX]
     REPS_OUT = [repo.OUT_REP, repo.OUT_REP_REL, repo.OUT_REP_FN, repo.OUT_REP_FNO, repo.OUT_REP_FNE, repo.OUT_REP_DIR, repo.OUT_REP_DIR_REL, repo.OUT_REP_INDEX]
-    if(argc != 3):
-        pout("This module will help you execute a command with all files in certain directories.\n")
-        pout("Syntax error. Expected: \"python folder_work.py exec {folder_in} {folder_out} {command}\", where: ")
-        pout("\t{command} like this \"convert {in} {out}\", where: ")
-        pout(f"\t\t{repo.IN_REP}", " each file from {folder_in} ")
-        pout(f"\t\t{repo.OUT_REP}", " each file from {folder_out} ")
-        pout("\t{folder_out} must be empty string (\"\") if don`t used")
-        pout("\n\tFor exampe, convert all jpg-pictures from \"path/to/jpg/image/folder\" to png-image:")
-        pout("\t> python folder_work.py exec \"path/to/jpg/image/folder\" \"path/to/png/image/folder\" \"convert {in} {out}.png\"")
-        pout("\tTags for use:")
-        pout(f"\t\t{repo.IN_REP}" + ": full path of files from {folder_in}")
-        pout(f"\t\t{repo.OUT_REP}" + ": full path of files from {folder_out}")
-        pout(f"\t\t{repo.IN_REP_REL}" + ": relative path of files from {folder_in}")
-        pout(f"\t\t{repo.OUT_REP_REL}" + ": relative path of files from {folder_out}")
-        pout(f"\t\t{repo.IN_REP_FN}" + ": name of files from {folder_in}")
-        pout(f"\t\t{repo.OUT_REP_FN}" + ": name of files from {folder_out}")
-        pout(f"\t\t{repo.IN_REP_FNO}" + ": name without extension of files from {folder_in}")
-        pout(f"\t\t{repo.OUT_REP_FNO}" + ": name without extension of files from {folder_out}")
-        pout(f"\t\t{repo.IN_REP_FNE}" + ": files extension (without dot) from {folder_in}")
-        pout(f"\t\t{repo.OUT_REP_FNE}" + ": files extension (without dot) from {folder_out}")
-        pout(f"\t\t{repo.IN_REP_DIR}" + ": directory of files from {folder_in}")
-        pout(f"\t\t{repo.OUT_REP_DIR}" + ": directory of files from {folder_out}")
-        pout(f"\t\t{repo.IN_REP_DIR_REL}" + ": relative path of directory of files from {folder_in}")
-        pout(f"\t\t{repo.OUT_REP_DIR_REL}" + ": relative path of directory of files from {folder_out}")
-        pout(f"\t\t{repo.IN_REP_INDEX}" + ": index of files from {folder_in}")
-        pout(f"\t\t{repo.OUT_REP_INDEX}" + ": index of files from {folder_out}")
-        pout("Example 1: \"" + repo.IN_REP + "\" and \"" + repo.IN_REP_DIR +"/" + repo.IN_REP_FNO + "." + repo.IN_REP_FNE + "\" the same text.")
-        pout("Example 2: \"" + repo.OUT_REP_FN + "\" and \"" + repo.OUT_REP_FNO + "." + repo.OUT_REP_FNE +"\" the same text.")
-        exit()
 
-    folder_in = args[0]
-    folder_out = args[1]
-    command = args[2]
+    parser = argparse.ArgumentParser(prog = "diwork exec",
+        description="execute by certain rules. This module will help you execute a command with all files in certain directories.\n")
+    parser.add_argument("folder_in", type=str, nargs=1,
+                       help="Path to \"input\" directory")
+    parser.add_argument("folder_out", type=str, nargs=1,
+                       help="Path to \"output\" directory")
+    parser.add_argument("command", type=str, nargs=1,
+                       help=help4command(repo))
+    parser.add_argument("--no_exec", default=False, action='store_true',
+                       help="If True, the commands will not be executed, but only displayed. Default False")
+    parser.add_argument("--exec_help", default=False, action='store_true',
+                       help="If help looks terrible, then set this flag, like that: \"> python diwork.py exec "" "" "" --exec_help\"")
+    parser = common_init_parser(parser)
+    args = parser.parse_args(args)
+    common_init_parse(args)
+
+
+    if(args.exec_help == True):
+        pout(help4command(repo))
+        exit()
+    folder_in = args.folder_in[0]
+    folder_out = args.folder_out[0]
+    command = args.command[0]
+    NO_EXEC = args.no_exec
+
     err_out = []
     if(is_folder(folder_in) == False):
         pout(f"\"{folder_in}\" is not folder. ")
@@ -104,18 +126,28 @@ def main_exec(args: list):
         folder_out_abs = os.path.abspath(folder_out)
 
     if(folder_out != "" ):
-        delete_all_if_dir_not_empty(folder_out_abs)
+        if(NO_EXEC == False):
+            delete_all_if_dir_not_empty(folder_out_abs)
+
+    if(NO_EXEC == True):
+        print("===============GENERATED COMMANDS:===============")
 
     if(folder_out != ""):
-        dirs_abs_in = getDirsList(folder_in_abs)
+        dirs_abs_in = list(set(getDirsList(folder_in_abs)))
         dirs_abs_in = sorted(dirs_abs_in)
         for dir_in_i in dirs_abs_in:
             dir_in_i_rel = rel_path(dir_in_i, folder_in_abs)
             dir_out_i_abs = os.path.join(folder_out_abs, dir_in_i_rel)
-            exe_out = exe(f"mkdir -p \"{dir_out_i_abs}\"")
-            if(exe_out[1] != ""):
-                pout(f"ERROR: {exe_out[1]}")
-                exit()
+            cmd2exec = f"mkdir -p \"{dir_out_i_abs}\""
+            if(NO_EXEC == False):
+                # exe_out = exe(cmd2exec)
+                # if(exe_out[1] != ""):
+                #     pout(f"ERROR: {exe_out[1]}")
+                #     exit()
+                mkdir(dir_out_i_abs)
+            else:
+                pout(cmd2exec)
+                
 
     files_abs_in = getFilesList(folder_in_abs)
     files_abs_in = sorted(files_abs_in)
@@ -133,13 +165,18 @@ def main_exec(args: list):
             file_out_i = os.path.join(folder_out_abs, file_i_rel)
             #command_i = command_i.replace(OUT_REP, file_out_i)
             command_i = replace_REP_with_needed(command_i, REPS_OUT, repo, file_out_i, folder_out_abs, gi)
-        pout(f"({gi}/{N}) Executing... ")
-        #print(command_i)
-        exe_out = exe(command_i)
-        if(exe_out[1] != ""):
-            err_out.append(f"ERROR: {exe_out[1]}")
-            continue
-    exe("sync")
+        if(NO_EXEC == False):
+            pout(f"({gi}/{N}) Executing... ")
+            #print(command_i)
+            exe_out = exe(command_i)
+            if(exe_out[1] != ""):
+                err_out.append(f"ERROR: {exe_out[1]}")
+                continue
+        else:
+            pout(command_i)
+
+    os.sync()
+    #exe("sync")
 
     if(len(err_out) != 0):
         pout(f"\n===============\nSome troubles happened:")
