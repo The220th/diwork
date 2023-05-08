@@ -56,7 +56,7 @@ def make_archive_one_folder(folder_path: str, path_to_zip: str, cur_iter: str = 
         d["legacy_version"] = legacy_version # if calculating hash will be changed or changed other things, this needed change too (increment)
         zfd.writestr("archive_info.json", json.dumps(d).encode("utf-8"))
     
-    return (errors, )
+    return (errors, ) # TODO: errors
 
 def process_if_zip_exists(zip_path: str) -> int:
     """ 0=override,    1=skip """
@@ -80,12 +80,15 @@ def main_archive(args: list):
                        help="Path to the directory where the archive will be placed. ")
     parser.add_argument("--yes", default=False, action='store_true',
                        help="No interractive. Answer \"yes\" always. ")
+    parser.add_argument("--one", default=False, action='store_true',
+                       help="Archive only one folder {folder_in}. Then {folder_in} path to the archived folder, not to directory of folders. ")
 
     parser = common_init_parser(parser)
     args = parser.parse_args(args)
     common_init_parse(args)
 
     IF_YES = args.yes
+    IF_ONE = args.one
 
     root_dir = args.folder_in[0]
     if(is_folder(root_dir) == False):
@@ -100,8 +103,11 @@ def main_archive(args: list):
     out_dir = os.path.abspath(out_dir)
 
     err_out = []
-
-    folders = get_folders_one_deep(root_dir)
+    
+    if(IF_ONE == False):
+        folders = get_folders_one_deep(root_dir)
+    else:
+        folders = [root_dir]
     if(len(folders) == 0):
         pout(f"\"{folders}\" is empty. ")
         exit()
@@ -110,7 +116,10 @@ def main_archive(args: list):
     gi, gN = 0, len(folders)
     for folder_i in folders:
         gi-=-1
-        zip_path = os.path.join(out_dir, rel_path(folder_i, root_dir) + ".zip")
+        if(IF_ONE == False):
+            zip_path = os.path.join(out_dir, rel_path(folder_i, root_dir) + ".zip")
+        else:
+            zip_path = os.path.join(out_dir, os.path.basename(folder_i) + ".zip")
         pout(f"\t\t ({gi}/{gN}) Archiving folder \"{folder_i}\" to \"{zip_path}\"... ")
         if(is_exists(zip_path) == True):
             if(IF_YES == False):
