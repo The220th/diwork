@@ -30,9 +30,9 @@ def main_diffclone(args: list):
                        help="Path to source directory")
     parser.add_argument("folder_dest", type=str, nargs=1,
                        help="Path to destination directory")
-    parser.add_argument("--check_hash", default=False, action='store_true',
+    parser.add_argument("--no_check_hash", default=False, action='store_true',
                        help="Check hashes of files from {folder_dest}")
-    # TODO: symlinks
+
     parser = common_init_parser(parser)
     args = parser.parse_args(args)
     common_init_parse(args)
@@ -40,7 +40,7 @@ def main_diffclone(args: list):
     folder1 = args.folder_src[0]
     folder2 = args.folder_dest[0]
     err_out = []
-    check_hash = args.check_hash
+    check_hash = not args.no_check_hash
     folder1_abs = os.path.abspath(folder1)
     folder2_abs = os.path.abspath(folder2)
     if not is_folder(folder1_abs):
@@ -80,9 +80,6 @@ def main_diffclone(args: list):
             if os.path.islink(file1_i):
                 if Global.symlink_mode == 0:
                     continue
-                if Global.symlink_mode == 1:
-                    # TODO: symlink rewrite original file
-                    pass
 
             file1_i_rel = str(os.path.relpath(file1_i, folder1_abs))
             file2_i = os.path.join(folder2_abs, file1_i_rel)
@@ -142,4 +139,6 @@ def main_diffclone(args: list):
         pout(f"===============")
     if not IF_OK:
         pout("Hashes does NOT match, diffclone failed!!!")
+    else:
+        pout("Hashes match! All is OK")
     pout("=============== Done! ===============")
