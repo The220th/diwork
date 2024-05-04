@@ -5,32 +5,37 @@ import sys
 import subprocess
 import hashlib
 import datetime
+import shutil
 
 class Global():
     version = None
     outfile = None
-    hash_mode = 1 # 0 is sha256sum, 1 is hashlib.sha256, 2 is sha512sum
+    symlink_mode = None
     
-
 
 def getFilesList(dirPath: str) -> list:
     return [os.path.join(path, name) for path, subdirs, files in os.walk(dirPath) for name in files]
+
 
 def getDirsList(dirPath: str) -> list:
     dirs = [os.path.join(path, name) for path, subdirs, files in os.walk(dirPath) for name in subdirs]
     return list(set(dirs))
 
+
 # return False, if folder_path not exists or folder_path is not folder
 def is_folder(folder_path: str) -> bool:
     return os.path.isdir(folder_path)
+
 
 # return False, if file_path not exists or file_path is not file
 def is_file(file_path: str) -> bool:
     return os.path.isfile(file_path)
 
+
 # return False, if file_path not exists
 def is_exists(file_path: str) -> bool:
     return os.path.exists(file_path)
+
 
 def check_files_exists_or_exit(files: list) -> None:
     F = False
@@ -41,14 +46,17 @@ def check_files_exists_or_exit(files: list) -> None:
     if(F == True):
         exit()
 
+
 def is_folder_empty(folder_path: str) -> bool:
     if(len(os.listdir(folder_path)) == 0):
         return True
     else:
         return False
 
+
 def rel_path(file_path: str, folder_path: str) -> str:
     return os.path.relpath(file_path, folder_path)
+
 
 def rm_folder_content(folder_path: str, root_dir_too: bool = False, does_not_exists_is_ok = False):
     """Удаляет всё содержимое папки. Саму папку не трогает, если root_dir_too == False"""
@@ -62,11 +70,13 @@ def rm_folder_content(folder_path: str, root_dir_too: bool = False, does_not_exi
     if(root_dir_too == True):
         os.rmdir(folder_path)
 
+
 def pout(msg : str, endl = True):
     if(endl == False):
         pout_low(msg)
     else:
         pout_low(msg + "\n")
+
 
 def pout_low(msg: str):
     print(msg, end="")
@@ -75,15 +85,18 @@ def pout_low(msg: str):
             fd.write(msg)
             fd.flush()
 
+
 def write2File_str(fileName : str, s : str) -> None:
     with open(fileName, 'w', encoding="utf-8") as temp:
         temp.write(s)
         temp.flush()
 
+
 def mkdir(path: str, p: bool = True):
     os.makedirs(path, exist_ok=True)
 
-def get_link_unwinding(link_path: str) -> str:
+
+def get_link_unwinding(link_path: str) -> str or None:
     """Вернёт конечный файл, на который (рекурсивно) ссылаются сылки. """
     if(os.path.exists(link_path) == False):
         return None
@@ -95,6 +108,7 @@ def get_link_unwinding(link_path: str) -> str:
             return linkto
         else:
             return get_link_unwinding(linkto)
+
 
 def get_nice_size(size_bytes: int) -> str:
     if(size_bytes < 1024):
@@ -108,53 +122,63 @@ def get_nice_size(size_bytes: int) -> str:
     else:
         return f"{size_bytes // (1024*1024*1024*1024)} TB"
 
+
 def get_time_str() -> str:
     # time_str = datetime.datetime.now().strftime("[%y.%m.%d %H:%M:%S.%f]")
     time_str = datetime.datetime.now().strftime("%y.%m.%d %H:%M:%S")
     return time_str
 
+
 def get_time_file(file_path: str) -> str:
     dt_m = datetime.datetime.fromtimestamp(os.path.getmtime(file_path))
     return dt_m.strftime("%d.%m.%Y_%H-%M-%S")
 
-def get_hash_file(file_path: str) -> str:
-    if(Global.hash_mode == 1):
-        buff_BLOCKSIZE = 65536 # 64 kB
-        sha = hashlib.sha256()
-        with open(file_path, "rb") as temp:
+
+def copy_file(src: str, dest: str) -> bool or None:
+    if os.path.islink(src):
+        if Global.symlink_mode == 0:
+            return None
+        elif Global.symlink_mode == 1:
+            linkto = os.readlink(src)
+            os.symlink(linkto, dest)
+            return True
+        elif Global.symlink_mode == 2:
+            file_path = get_link_unwinding(src)
+            if file_path is None:
+                return False
+        else:
+            raise Exception(f"Failed successfully: copy_file with {src}->{dest}")
+
+    shutil.copy(src, dest)
+    return True
+
+
+def get_hash_file(file_path: str) -> str or None:
+    if os.path.islink(file_path):
+        if Global.symlink_mode == 0:
+            return None
+        elif Global.symlink_mode == 1:
+            return get_hash_str(os.readlink(file_path))
+        elif Global.symlink_mode == 2:
+            file_path = get_link_unwinding(file_path)
+            if file_path is None:
+                return None
+        else:
+            raise Exception(f"Failed successfully: get_hash_file with {file_path}")
+
+    buff_BLOCKSIZE = 65536  # 64 kB
+    sha = hashlib.sha256()
+    with open(file_path, "rb") as temp:
+        file_buffer = temp.read(buff_BLOCKSIZE)
+        while len(file_buffer) > 0:
+            sha.update(file_buffer)
             file_buffer = temp.read(buff_BLOCKSIZE)
-            while len(file_buffer) > 0:
-                sha.update(file_buffer)
-                file_buffer = temp.read(buff_BLOCKSIZE)
-        return sha.hexdigest()
-    else:
-        if(Global.hash_mode == 0):
-            shaxxxsum = "sha256sum"
-        elif(Global.hash_mode == 2):
-            shaxxxsum = "sha512sum"
-        exe_res = exe(f"{shaxxxsum} \"{file_path}\"")
-        if(exe_res[1] != ""):
-            pout(f"Error with {shaxxxsum}: ")
-            pout(f"\"{exe_res[1]}\"")
-            exit()
-        res = exe_res[0]
-        return res[:res.find(" ")]
+    return sha.hexdigest()
+
 
 def get_hash_str(s: str):
-    if(Global.hash_mode == 1):
-        return hashlib.sha256( s.encode("utf-8") ).hexdigest()
-    else:
-        if(Global.hash_mode == 0):
-            shaxxxsum = "sha256sum"
-        elif(Global.hash_mode == 2):
-            shaxxxsum = "sha512sum"
-        exe_res = exe(f"{shaxxxsum}", stdin_msg=s)
-        if(exe_res[1] != ""):
-            pout(f"Error with {shaxxxsum}: ")
-            pout(f"\"{exe_res[1]}\"")
-            exit()
-        res = exe_res[0]
-        return res[:res.find(" ")]
+    return hashlib.sha256( s.encode("utf-8") ).hexdigest()
+
 
 def get_hash_of_hashes(hashes: list) -> str:
 
@@ -198,6 +222,7 @@ def exclude_files(src_files: list, exclude_files: list) -> list:
                 res.append(file_i) 
     return res
 
+
 def delete_all_if_dir_not_empty(dir_path: str):
     if(is_folder_empty(dir_path) == False):
         pout(f"Folder \"{dir_path}\" is not empty. ")
@@ -221,6 +246,7 @@ def delete_all_if_dir_not_empty(dir_path: str):
             pout(f"Cannot clean folder \"{dir_path}\"! Exiting ")
             exit()
 
+
 def get_dirs_needed_for_files(files: list) -> list:
     dirs = set()
     for file_i in files:
@@ -228,6 +254,7 @@ def get_dirs_needed_for_files(files: list) -> list:
         dirs.add(dir_i)
     dirs = sorted(list(dirs))
     return dirs
+
 
 def exe_lowout(command: str, debug: bool = True, std_out_pipe: bool = False, std_err_pipe: bool = False) -> tuple:
     '''
@@ -261,6 +288,7 @@ def exe_lowout(command: str, debug: bool = True, std_out_pipe: bool = False, std
             err = None
     errcode = process.returncode
     return (out, err, errcode)
+
 
 def exe(command: str, debug: bool = True, std_out_fd = subprocess.PIPE, std_err_fd = subprocess.PIPE, stdin_msg: str = None) -> tuple:
     '''

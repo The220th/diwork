@@ -34,8 +34,8 @@ def main_clone(args: list):
                        help="Path to source directory")
     parser.add_argument("folder_dest", type=str, nargs=1,
                        help="Path to destination directory")
-    parser.add_argument("--symlink_mode", type=int, choices=[0,1,2], default=2, required=False,
-                       help="What to do with links: 0 - ignor, 1 - consider link content, 2 - use the file where the link refers to. Default 2.")
+    # parser.add_argument("--symlink_mode", type=int, choices=[0,1,2], default=2, required=False,
+    #                    help="What to do with links: 0 - ignor, 1 - consider link content, 2 - use the file where the link refers to. Default 2.")
     parser.add_argument("--copy_mode", type=int, choices=[0,1], default=0, required=False,
                        help="How to copy files: 0 - python shutil, 1 - system cp (copy). Default 0.")
     parser = common_init_parser(parser)
@@ -110,9 +110,11 @@ def main_clone(args: list):
             pout(f"({gi}/{N}) Copying \"{file_i_rel}\"... ")
             cp(file_i_1, file_i_2, copy_mode)
     if(copy_mode == 0):
-        os.sync()
+        if sys.platform != "win32":
+            os.sync()
     elif(copy_mode == 1):
-        exe("sync")
+        if sys.platform != "win32":
+            exe("sync")
     else:
         pass
 

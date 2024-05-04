@@ -15,8 +15,8 @@ def main_hash(args: list) -> "list of hashes":
                        help="Paths to directories whose hash will be calculated")
     parser.add_argument("--exclude", type=str, nargs="+", default=None, action="append",
                        help="Do not take these files or directories into consideration when calculating the hash")
-    parser.add_argument("--symlink_mode", type=int, choices=[0,1,2], default=2, required=False,
-                       help="What to do with links: 0 - ignor, 1 - consider link content, 2 - use the file where the link refers to. Default 2.")
+    # parser.add_argument("--symlink_mode", type=int, choices=[0,1,2], default=2, required=False,
+    #                    help="What to do with links: 0 - ignor, 1 - consider link content, 2 - use the file where the link refers to. Default 2.")
     parser.add_argument("--hierarchy", default=False, action='store_true',
                        help="If True, then the file hierarchy will be considered when calculating the hash. Default False")
     parser = common_init_parser(parser)
