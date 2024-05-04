@@ -12,7 +12,7 @@ from . import __version__
 VERSION = __version__
 
 def main():
-    MODULES = "{help, hash, clone, sshclone, diff, difx, repeats, exec, archive}"
+    MODULES = "{help, hash, clone, diffclone, sshclone, diff, difx, repeats, exec, archive}"
     SyntaxError_str = f"Syntax error. Expected: \"> python folder_work.py {MODULES} ...\""
     argc = len(sys.argv)
     Global.version = VERSION
@@ -25,6 +25,8 @@ def main():
             main_hash(sys.argv[2:])
         elif(sub_modul_name == "clone"):
             main_clone(sys.argv[2:])
+        elif(sub_modul_name == "diffclone"):
+            main_diffclone(sys.argv[2:])
         elif(sub_modul_name == "sshclone"):
             main_sshclone(sys.argv[2:])
         elif(sub_modul_name == "diff"):

@@ -22,6 +22,7 @@ setup(
     version=main_ns["__version__"],
     install_requires=[
         "argparse",
+        "tqdm",
     ],
     packages=find_packages(
         # All keyword arguments below are optional:

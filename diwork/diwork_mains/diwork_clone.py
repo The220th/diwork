@@ -8,9 +8,9 @@ import shutil
 from diwork_ways import *
 
 def define_clone_command() -> "str":
-    if sys.platform == "linux" or platform == "linux2" or sys.platform == "darwin":
+    if sys.platform == "linux" or sys.platform == "linux2" or sys.platform == "darwin":
         return "cp"
-    elif sys.platform == "win32": # In windows cp == copy
+    elif sys.platform == "win32":  # In windows cp == copy
         return "copy"
     else:
         pout("(define_clone_command) Failed successfully. ")
@@ -56,10 +56,10 @@ def main_clone(args: list):
     
     if(folder1_abs in folder2_abs):
         pout(f"Directory \"{folder1_abs}\" contains directory \"{folder2_abs}\". Exiting...")
-        exit()
+        input("Enter to continue...")
     if(folder2_abs in folder1_abs):
         pout(f"Directory \"{folder2_abs}\" contains directory \"{folder1_abs}\". Exiting...")
-        exit()
+        input("Enter to continue...")
     symlink_mode = args.symlink_mode
     copy_mode = args.copy_mode
     

@@ -17,7 +17,8 @@ def getFilesList(dirPath: str) -> list:
     return [os.path.join(path, name) for path, subdirs, files in os.walk(dirPath) for name in files]
 
 def getDirsList(dirPath: str) -> list:
-    return [os.path.join(path, name) for path, subdirs, files in os.walk(dirPath) for name in subdirs]
+    dirs = [os.path.join(path, name) for path, subdirs, files in os.walk(dirPath) for name in subdirs]
+    return list(set(dirs))
 
 # return False, if folder_path not exists or folder_path is not folder
 def is_folder(folder_path: str) -> bool:
@@ -111,6 +112,10 @@ def get_time_str() -> str:
     # time_str = datetime.datetime.now().strftime("[%y.%m.%d %H:%M:%S.%f]")
     time_str = datetime.datetime.now().strftime("%y.%m.%d %H:%M:%S")
     return time_str
+
+def get_time_file(file_path: str) -> str:
+    dt_m = datetime.datetime.fromtimestamp(os.path.getmtime(file_path))
+    return dt_m.strftime("%d.%m.%Y_%H-%M-%S")
 
 def get_hash_file(file_path: str) -> str:
     if(Global.hash_mode == 1):

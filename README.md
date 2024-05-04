@@ -5,13 +5,7 @@
 # Install
 
 ``` bash
-git clone https://github.com/The220th/diwork && cd diwork
-pip3 install -r requirements.txt
-cd package-building && bash build.sh
-
-# $HOME/.local/bin/ must be in PATH.
-tar -C "$HOME/.local/bin/" -xvaf diwork.tar.gz
-rm diwork.tar.gz
+pip3 install diwork
 ```
 
 # Usage
