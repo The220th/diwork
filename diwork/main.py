@@ -1,23 +1,17 @@
-#!/usr/bin/env python3
-
 # -*- coding: utf-8 -*-
-
-VERSION = "V0.74"
 
 import os
 import sys
-
-__WORK_DIR = os.path.dirname(__file__)
-
-sys.path.insert(0, os.path.abspath(f"{__WORK_DIR}/diwork_ways"))
-sys.path.insert(0, os.path.abspath(f"{__WORK_DIR}/diwork_mains"))
 
 from diwork_ways import pout, Global
 
 from diwork_mains import *
 
+from . import __version__
 
-if __name__ == "__main__":
+VERSION = __version__
+
+def main():
     MODULES = "{help, hash, clone, sshclone, diff, difx, repeats, exec, archive}"
     SyntaxError_str = f"Syntax error. Expected: \"> python folder_work.py {MODULES} ...\""
     argc = len(sys.argv)

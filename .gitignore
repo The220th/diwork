@@ -1,2 +1,6 @@
- 
+venv
+.idea
 **/__pycache__
+build
+dist
+diwork.egg-info
