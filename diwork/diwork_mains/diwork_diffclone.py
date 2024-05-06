@@ -74,6 +74,7 @@ def main_diffclone(args: list):
     dirs_abs_1 = getDirsList(folder1_abs)
     dirs_abs_1 = sorted(dirs_abs_1)
     files1, files2 = get_files_list(folder1_abs), get_files_list(folder2_abs)
+    
     if not skip_copy:
         for dir_i_1 in dirs_abs_1:
             dir_i_rel = rel_path(dir_i_1, folder1_abs)
