@@ -49,7 +49,7 @@ def main_hash(args: list) -> "list of hashes":
     for folder_i in folders_abs:
         ggi-=-1
         pout(f"\nCalculating hash of directory \"{folder_i}\":")
-        files = getFilesList(folder_i)
+        files = get_files_list(folder_i)
         files = sorted(files)
         files = exclude_files(files, files_exclude)
         hashes = []

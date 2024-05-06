@@ -24,7 +24,7 @@ def main_difx(args: list):
         pout(f"\"{folder2_abs}\" is not folder. ")
         exit()
 
-    files1_abs, files2_abs = sorted(getFilesList(folder1_abs)), sorted(getFilesList(folder2_abs))
+    files1_abs, files2_abs = sorted(get_files_list(folder1_abs)), sorted(get_files_list(folder2_abs))
     dr1, dr2 = {}, {}
     gi, N = 0, len(files1_abs)+len(files2_abs)
     for file_i in files1_abs:

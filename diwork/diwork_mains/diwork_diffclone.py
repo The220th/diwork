@@ -4,6 +4,7 @@ import os
 import sys
 import argparse
 import shutil
+import threading
 
 from diwork_ways import *
 
@@ -13,7 +14,7 @@ from tqdm import tqdm
 def calc_hash_dict_of_dir(dir_path: str) -> dict:
     d = {}
     dir_path = os.path.abspath(dir_path)
-    files = getFilesList(dir_path)
+    files = get_files_list(dir_path)
     files = sorted(files)
     for file_i in tqdm(files):
         file_i_rel = os.path.relpath(file_i, dir_path)
@@ -31,7 +32,9 @@ def main_diffclone(args: list):
     parser.add_argument("folder_dest", type=str, nargs=1,
                        help="Path to destination directory")
     parser.add_argument("--no_check_hash", default=False, action='store_true',
-                       help="Check hashes of files from {folder_dest}")
+                       help="Check hashes of files from {folder_src} and {folder_dest}")
+    parser.add_argument("--skip_copy", default=False, action='store_true',
+                       help="Skip copy phase. Only hash ckeck.")
 
     parser = common_init_parser(parser)
     args = parser.parse_args(args)
@@ -41,6 +44,7 @@ def main_diffclone(args: list):
     folder2 = args.folder_dest[0]
     err_out = []
     check_hash = not args.no_check_hash
+    skip_copy = args.skip_copy
     folder1_abs = os.path.abspath(folder1)
     folder2_abs = os.path.abspath(folder2)
     if not is_folder(folder1_abs):
@@ -58,7 +62,8 @@ def main_diffclone(args: list):
         input("Enter to continue...")
 
     pout(f"Calculating hash tree of directory \"{folder1_abs}\"...")
-    d1 = calc_hash_dict_of_dir(folder1_abs)
+    # d1 = calc_hash_dict_of_dir(folder1_abs)
+    cp_count = 0
 
     pout("Diffclonning...")
     # 3 варианта:
@@ -68,44 +73,54 @@ def main_diffclone(args: list):
 
     dirs_abs_1 = getDirsList(folder1_abs)
     dirs_abs_1 = sorted(dirs_abs_1)
-    for dir_i_1 in dirs_abs_1:
-        dir_i_rel = rel_path(dir_i_1, folder1_abs)
-        dir_i_2 = os.path.join(folder2_abs, dir_i_rel)
-        if not os.path.exists(dir_i_2):
-            mkdir(dir_i_2, p=True)
+    files1, files2 = get_files_list(folder1_abs), get_files_list(folder2_abs)
+    if not skip_copy:
+        for dir_i_1 in dirs_abs_1:
+            dir_i_rel = rel_path(dir_i_1, folder1_abs)
+            dir_i_2 = os.path.join(folder2_abs, dir_i_rel)
+            if not os.path.exists(dir_i_2):
+                mkdir(dir_i_2, p=True)
 
-    files1, files2 = getFilesList(folder1_abs), getFilesList(folder2_abs)
-    for file1_i in tqdm(files1):
-        try:
-            if os.path.islink(file1_i):
-                if Global.symlink_mode == 0:
-                    continue
+        for file1_i in tqdm(files1):
+            try:
+                if os.path.islink(file1_i):
+                    if Global.symlink_mode == 0:
+                        continue
 
-            file1_i_rel = str(os.path.relpath(file1_i, folder1_abs))
-            file2_i = os.path.join(folder2_abs, file1_i_rel)
-            if not os.path.isfile(file2_i):  # case 1
-                if copy_file(file1_i, file2_i) in [False, None]:
-                    err_out.append(f"Cannot copy \"{file1_i}\" to \"{file2_i}\". ")
-            else:
-                file2_i_hash = get_hash_file(file2_i)
-                if d1[file1_i_rel] == file2_i_hash:  # case 2
-                    pass  # ничего не делаем
-                else:  # case 3
-                    file2_i_time = get_time_file(file2_i)
-                    os.rename(file2_i, f"{file2_i}---{file2_i_time}.bak")
+                file1_i_rel = str(os.path.relpath(file1_i, folder1_abs))
+                file2_i = os.path.join(folder2_abs, file1_i_rel)
+                if not os.path.isfile(file2_i):  # case 1
                     if copy_file(file1_i, file2_i) in [False, None]:
                         err_out.append(f"Cannot copy \"{file1_i}\" to \"{file2_i}\". ")
-        except Exception as e:
-            pout(str(e))
-            err_out.append(f"\"{file1_i}\"")
+                    else:
+                        cp_count += 1
+                else:
+                    x1 = ThreadWithReturnValue(1, target=get_hash_file, args=(file1_i,))
+                    x2 = ThreadWithReturnValue(2, target=get_hash_file, args=(file2_i,))
+                    x1.start(), x2.start()
+                    file1_i_hash, file2_i_hash = x1.join(), x2.join()
+                    if file1_i_hash == file2_i_hash:  # case 2
+                        pass  # ничего не делаем
+                    else:  # case 3
+                        file2_i_time = get_time_file(file2_i)
+                        os.rename(file2_i, f"{file2_i}---{file2_i_time}.bak")
+                        if copy_file(file1_i, file2_i) in [False, None]:
+                            err_out.append(f"Cannot copy \"{file1_i}\" to \"{file2_i}\". ")
+                        else:
+                            cp_count += 1
+            except Exception as e:
+                pout(str(e))
+                err_out.append(f"\"{file1_i}\"")
 
-    if platform != "win32":
-        os.sync()
-    if len(err_out) != 0:
-        pout(f"\n===============\nSome troubles happened:")
-        for err_i in err_out:
-            pout(f"\t{err_i}")
-        pout(f"===============")
+        if platform != "win32":
+            os.sync()
+        if len(err_out) != 0:
+            pout(f"\n===============\nSome troubles happened:")
+            for err_i in err_out:
+                pout(f"\t{err_i}")
+            pout(f"===============")
+
+        pout(f"Coping done! {cp_count} copy operation total. ")
 
     IF_OK = True
     if check_hash:
@@ -118,8 +133,11 @@ def main_diffclone(args: list):
                         continue
                 file1_i_rel = str(os.path.relpath(file1_i, folder1_abs))
                 file2_i = os.path.join(folder2_abs, file1_i_rel)
-                file2_i_hash = get_hash_file(file2_i)
-                if d1[file1_i_rel] != file2_i_hash:
+                x1 = ThreadWithReturnValue(1, target=get_hash_file, args=(file1_i,))
+                x2 = ThreadWithReturnValue(2, target=get_hash_file, args=(file2_i,))
+                x1.start(), x2.start()
+                file1_i_hash, file2_i_hash = x1.join(), x2.join()
+                if file1_i_hash != file2_i_hash:
                     buffS = (
                         f"HASHES OF FILES DOES NOT MATCH: "
                         f"\"{d1[file1_i_rel]}\" of \"{file1_i}\" and "

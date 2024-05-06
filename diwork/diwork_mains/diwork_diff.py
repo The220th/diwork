@@ -110,8 +110,8 @@ def main_diff(args: list):
     else:
         HASH_NOT_NEEDED = False
     d1, d2, dr1, dr2 = {}, {}, {}, {}
-    files_abs_old = sorted(getFilesList(folder_old_abs))
-    files_abs_new = sorted(getFilesList(folder_new_abs))
+    files_abs_old = sorted(get_files_list(folder_old_abs))
+    files_abs_new = sorted(get_files_list(folder_new_abs))
     gi, N = 0, len(files_abs_old)+len(files_abs_new)
     for file_i in files_abs_old:
         gi+=1

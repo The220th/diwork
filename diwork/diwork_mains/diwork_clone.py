@@ -77,7 +77,7 @@ def main_clone(args: list):
         #    pout(f"ERROR: {exe_out[1]}")
         #    exit()
 
-    files_abs_1 = getFilesList(folder1_abs)
+    files_abs_1 = get_files_list(folder1_abs)
     files_abs_1 = sorted(files_abs_1)
     gi, N = 0, len(files_abs_1)
     for file_i_1 in files_abs_1:

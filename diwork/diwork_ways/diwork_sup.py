@@ -6,14 +6,37 @@ import subprocess
 import hashlib
 import datetime
 import shutil
+from threading import Thread
+
 
 class Global():
     version = None
     outfile = None
     symlink_mode = None
-    
 
-def getFilesList(dirPath: str) -> list:
+
+class ThreadWithReturnValue(Thread):
+
+    def __init__(self, index: int, group=None, target=None, name=None,
+                 args=(), kwargs={}, Verbose=None):
+        Thread.__init__(self, group, target, name, args, kwargs)
+        self._index = index
+        self._return = None
+
+    def run(self):
+        if self._target is not None:
+            self._return = self._target(*self._args,
+                                        **self._kwargs)
+
+    def get_index(self):
+        return self._index
+
+    def join(self, *args):
+        Thread.join(self, *args)
+        return self._return
+
+
+def get_files_list(dirPath: str) -> list:
     return [os.path.join(path, name) for path, subdirs, files in os.walk(dirPath) for name in files]
 
 
@@ -71,7 +94,7 @@ def rm_folder_content(folder_path: str, root_dir_too: bool = False, does_not_exi
         os.rmdir(folder_path)
 
 
-def pout(msg : str, endl = True):
+def pout(msg: str, endl = True):
     if(endl == False):
         pout_low(msg)
     else:

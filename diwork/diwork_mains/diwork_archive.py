@@ -32,7 +32,7 @@ def make_archive_one_folder(folder_path: str, path_to_zip: str, cur_iter: str = 
     errors = []
     folder_path_name = os.path.basename(folder_path)
     # folder_path_name = "content"
-    files = sorted(getFilesList(folder_path))
+    files = sorted(get_files_list(folder_path))
     files = [os.path.abspath(file_i) for file_i in files]
     files_rel = [rel_path(file_i, folder_path) for file_i in files]
 

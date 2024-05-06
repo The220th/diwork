@@ -186,7 +186,7 @@ def main_sshclone(args: list):
     if(if_src_remote == True):
         cpfiles = get_all_files_from_remote_host(user, host, PORT, path, PSWD)
     else:
-        cpfiles = getFilesList(folder1)
+        cpfiles = get_files_list(folder1)
 
     if(if_src_remote == False):
         delete_all_if_dir_not_empty_ssh(path, user, host, PORT, PSWD)

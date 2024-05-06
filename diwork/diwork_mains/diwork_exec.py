@@ -149,7 +149,7 @@ def main_exec(args: list):
                 pout(cmd2exec)
                 
 
-    files_abs_in = getFilesList(folder_in_abs)
+    files_abs_in = get_files_list(folder_in_abs)
     files_abs_in = sorted(files_abs_in)
     gi, N = 0, len(files_abs_in)
     for file_in_i in files_abs_in:

@@ -28,7 +28,7 @@ def main_repeats(args: list):
     if(is_folder(folder_abs) == False):
         pout(f"\"{folder_abs}\" is not folder. ")
         exit()
-    files_abs = sorted(getFilesList(folder_abs))
+    files_abs = sorted(get_files_list(folder_abs))
     hashes = set()
     d = {}
     gi, N = 0, len(files_abs)
