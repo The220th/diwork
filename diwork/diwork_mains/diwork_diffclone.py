@@ -24,7 +24,7 @@ def calc_hash_dict_of_dir(dir_path: str) -> dict:
 
 def main_diffclone(args: list):
     platform = sys.platform
-    parser = argparse.ArgumentParser(prog = "diwork diffclone",
+    parser = argparse.ArgumentParser(prog="diwork diffclone",
         description="This module will clone all the contents of {folder_src} to {folder_dest}, but only files, which does not already contains in {folder_dest}. "
                     "Old files will be renamed if needed.")
     parser.add_argument("folder_src", type=str, nargs=1,

@@ -13,6 +13,7 @@ from .diwork_help import main_help
 from .diwork_sshclone import main_sshclone
 from .diwork_archive import main_archive
 from .diwork_diffclone import main_diffclone
+from .diwork_contains import main_contains
 
 __all__ = [
     "main_help",
@@ -24,5 +25,6 @@ __all__ = [
     "main_exec",
     "main_sshclone",
     "main_archive",
-    "main_diffclone"
+    "main_diffclone",
+    "main_contains"
 ]
