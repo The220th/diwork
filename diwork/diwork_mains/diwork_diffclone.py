@@ -141,7 +141,7 @@ def main_diffclone(args: list):
                 if file1_i_hash != file2_i_hash:
                     buffS = (
                         f"HASHES OF FILES DOES NOT MATCH: "
-                        f"\"{d1[file1_i_rel]}\" of \"{file1_i}\" and "
+                        f"\"{file1_i_hash}\" of \"{file1_i}\" and "
                         f"\"{file2_i_hash}\" of \"{file2_i}\""
                              )
                     pout(buffS)
